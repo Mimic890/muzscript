@@ -1,0 +1,40 @@
+[build-system]
+requires = ["setuptools>=69"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "muz"
+version = "0.1.0"
+description = "Music library maintenance tool: duplicates, tags, file names, covers, lyrics and conversion."
+readme = "README.md"
+license = "MIT"
+requires-python = ">=3.12"
+dependencies = [
+    "mutagen>=1.47",
+    "rich>=13.7",
+    "textual>=1.0",
+]
+
+[project.optional-dependencies]
+# SpotiFLAC changes its internal API between major versions, so it is pinned
+# exactly and only ever called through muz/providers/spotiflac.py.
+spotiflac = ["SpotiFLAC==5.0.0"]
+dev = ["pytest>=8"]
+
+[project.scripts]
+muz = "muz.cli:main"
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+
+[tool.ruff]
+line-length = 120
+target-version = "py312"
+
+[tool.ruff.lint]
+select = ["F", "E9", "B", "I"]
+# Loop variables are bound through default arguments on purpose.
+ignore = ["B023"]
