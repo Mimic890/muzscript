@@ -1,0 +1,13 @@
+services:
+  muz:
+    build: .
+    image: muz:latest
+    # Files are created and moved as your user, not root.
+    # Put PUID/PGID in a .env file next to this one if your ids are not 1000 (see `id`).
+    user: "${PUID:-1000}:${PGID:-1000}"
+    # The TUI and the interactive questions need a terminal.
+    stdin_open: true
+    tty: true
+    volumes:
+      # Change the left side to your music folder.
+      - ${MUSIC_DIR:-/srv/music}:/music
