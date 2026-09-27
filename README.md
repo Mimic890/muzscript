@@ -56,26 +56,49 @@ All service files start with a dot, so Navidrome ignores them
 ### Docker (recommended for servers)
 
 Nothing but Docker is installed on the host. The image is based on
-`python:3.14-slim` and includes ffmpeg, fpcalc and SpotiFLAC.
+`python:3.14-slim` and includes ffmpeg, fpcalc and SpotiFLAC. GitHub Actions
+builds it for `linux/amd64` and `linux/arm64` and publishes it as
+`ghcr.io/mimic890/muzscript`:
+
+| Tag | Built from |
+|---|---|
+| `latest` | every push to `main` |
+| `1.2.3`, `1.2` | a `v1.2.3` git tag |
+| `sha-abc1234` | a specific commit |
+
+**Run the published image** with `docker-compose.yml`. Only the compose file
+and a `.env` are needed on the server:
 
 ```sh
-git clone https://github.com/mimic890/muzscript.git
-cd muzscript
+mkdir ~/muz && cd ~/muz
+curl -fsSLO https://raw.githubusercontent.com/mimic890/muzscript/main/docker-compose.yml
 # point MUSIC_DIR at your library, set PUID/PGID if your user id is not 1000 (`id`)
 printf 'MUSIC_DIR=/srv/music\nPUID=1000\nPGID=1000\n' > .env
-docker compose build
+docker compose pull
 docker compose run --rm muz            # dashboard
 docker compose run --rm muz --dupes    # any muz arguments
 ```
 
-The container runs as your user, so moved and converted files keep your
-ownership. Build a smaller image without SpotiFLAC with
-`docker compose build --build-arg SPOTIFLAC=0`.
+Set `MUZ_TAG=1.2.3` in `.env` to pin a version instead of `latest`. If the
+package is private on GitHub, run `docker login ghcr.io` first (with a token
+that has `read:packages`), or make the package public in its GitHub settings.
 
-A shell alias makes it feel native:
+**Build the image yourself** with `docker-compose.build.yml`:
 
 ```sh
-alias muz='docker compose -f ~/muzscript/docker-compose.yml run --rm muz'
+git clone https://github.com/mimic890/muzscript.git && cd muzscript
+printf 'MUSIC_DIR=/srv/music\nPUID=1000\nPGID=1000\n' > .env
+docker compose -f docker-compose.build.yml build
+docker compose -f docker-compose.build.yml run --rm muz
+```
+
+Add `SPOTIFLAC=0` to `.env` for a smaller image without SpotiFLAC.
+
+The container runs as your user, so moved and converted files keep your
+ownership. A shell alias makes it feel native:
+
+```sh
+alias muz='docker compose -f ~/muz/docker-compose.yml run --rm muz'
 ```
 
 ### pipx / pip
@@ -213,6 +236,9 @@ python3.14 -m venv .venv && . .venv/bin/activate
 pip install -e ".[dev]"
 pytest          # needs ffmpeg and fpcalc; tests generate their own audio files
 ```
+
+CI (`.github/workflows/docker.yml`) runs `ruff` and `pytest`, then builds the
+image. Pull requests only build it; pushes to `main` and `v*` tags publish it.
 
 ## License
 

@@ -1,7 +1,11 @@
+# Run the published image from GitHub Container Registry.
+#   docker compose pull
+#   docker compose run --rm muz              (dashboard)
+#   docker compose run --rm muz --dupes      (any muz arguments)
+# To build the image yourself instead, use docker-compose.build.yml.
 services:
   muz:
-    build: .
-    image: muz:latest
+    image: ghcr.io/mimic890/muzscript:${MUZ_TAG:-latest}
     # Files are created and moved as your user, not root.
     # Put PUID/PGID in a .env file next to this one if your ids are not 1000 (see `id`).
     user: "${PUID:-1000}:${PGID:-1000}"
@@ -9,5 +13,5 @@ services:
     stdin_open: true
     tty: true
     volumes:
-      # Change the left side to your music folder.
+      # Set MUSIC_DIR in .env, or change the left side to your music folder.
       - ${MUSIC_DIR:-/srv/music}:/music

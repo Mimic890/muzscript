@@ -1,0 +1,16 @@
+# Build the image from this checkout instead of pulling it.
+#   docker compose -f docker-compose.build.yml build
+#   docker compose -f docker-compose.build.yml run --rm muz --dupes
+# Without SpotiFLAC (smaller image): add --build-arg SPOTIFLAC=0 to the build command.
+services:
+  muz:
+    build:
+      context: .
+      args:
+        SPOTIFLAC: ${SPOTIFLAC:-1}
+    image: muz:local
+    user: "${PUID:-1000}:${PGID:-1000}"
+    stdin_open: true
+    tty: true
+    volumes:
+      - ${MUSIC_DIR:-/srv/music}:/music
