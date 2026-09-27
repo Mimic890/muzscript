@@ -1,7 +1,8 @@
 # muz: music library maintenance tool.
-# Build:  docker compose build
-# Run:    docker compose run --rm muz            (dashboard)
-#         docker compose run --rm muz --dupes    (any muz arguments)
+# Build:  docker compose -f docker-compose.build.yml build
+# Run:    docker compose -f docker-compose.build.yml run --rm muz            (dashboard)
+#         docker compose -f docker-compose.build.yml run --rm muz --dupes    (any muz arguments)
+# The published image: ghcr.io/mimic890/muzscript (see docker-compose.yml).
 
 FROM python:3.14-slim
 
